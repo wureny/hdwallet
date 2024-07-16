@@ -3,13 +3,13 @@ import {numberToHex} from "../../common/common.js";
 
 export function signTx(params) {
     let {privateKey, nonce, from, to, gasLimit, gasPrice, amount, data, chainId, decimal, maxFeePerGas, maxPriorityFeePerGas, tokenAddress, tokenId} = params;
-    let wallet = ethers.Wallet(Buffer.from(from, 'hex'));
+    let wallet = new ethers.Wallet(privateKey);
     const txData = {
-        nonce: ethers.hexlify(nonce),
+        nonce: Number(ethers.hexlify(nonce)),
         from,
         to,
-        gasLimit:ethers.hexlify(gasLimit),
-        value: ethers.hexlify(ethers.parseUnits(amount,decimal)),
+        gasLimit:BigInt(ethers.hexlify(gasLimit)),
+        value: Number(ethers.hexlify(ethers.parseUnits(amount,decimal).toString())),
         chainId
     };
     if (maxFeePerGas && maxPriorityFeePerGas) {
@@ -22,7 +22,6 @@ export function signTx(params) {
     if (tokenAddress===null || tokenAddress==="0x00") {
         return
     }
-    return 1
 
     let idata;
     if (tokenId === "0x00") {
@@ -30,7 +29,7 @@ export function signTx(params) {
             'function transfer(address to, uint amount)'
         ];
         const iface = new Interface(ABI);
-        idata = iface.encodeFunctionData('transfer', [to, ethers.hexlify(ethers.parseUnits(amount, decimal))]);
+        idata = iface.encodeFunctionData('transfer', [to, ethers.hexlify(ethers.parseUnits(amount, decimal).toString())]);
     } else {
         const ABI = [
             "function transferFrom(address from, address to, uint256 tokenId)"
